@@ -1,4 +1,10 @@
-type Resolver = (root: any, args: any, context: any, info: any) => any;
+import { PrismaClient } from "@prisma/client";
+
+type Context = {
+  client: PrismaClient;
+};
+
+type Resolver = (root: any, args: any, context: Context, info: any) => any;
 
 type List = "Query" | "Mutation" | "Subscription";
 
