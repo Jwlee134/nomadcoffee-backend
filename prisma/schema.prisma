@@ -11,16 +11,42 @@ datasource db {
 }
 
 model User {
-  id             Int      @id @default(autoincrement())
-  username       String   @unique
-  email          String   @unique
+  id             Int          @id @default(autoincrement())
+  username       String       @unique
+  email          String       @unique
   name           String
   password       String
   location       String?
   avatarUrl      String?
   githubUsername String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  followers      User[]   @relation("FollowRelation", references: [id])
-  following      User[]   @relation("FollowRelation", references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  followers      User[]       @relation("FollowRelation", references: [id])
+  following      User[]       @relation("FollowRelation", references: [id])
+  shops          CoffeeShop[]
+}
+
+model CoffeeShopPhoto {
+  id     Int        @id @default(autoincrement())
+  url    String
+  shop   CoffeeShop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  shopId Int
+}
+
+model CoffeeShop {
+  id         Int               @id @default(autoincrement())
+  name       String
+  latitude   String
+  longitude  String
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int
+  photos     CoffeeShopPhoto[]
+  categories Category[]
+}
+
+model Category {
+  id    Int          @id @default(autoincrement())
+  name  String       @unique
+  slug  String?
+  shops CoffeeShop[]
 }
