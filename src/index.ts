@@ -6,6 +6,8 @@ import express from "express";
 import { graphqlUploadExpress } from "graphql-upload";
 import { getLoggedInUser } from "./user/user.utils";
 
+const PORT = process.env.PORT;
+
 async function startServer() {
   const server = new ApolloServer({
     typeDefs,
@@ -23,9 +25,11 @@ async function startServer() {
 
   server.applyMiddleware({ app });
 
-  await new Promise<void>((r) => app.listen({ port: 4000 }, r));
+  await new Promise<void>((r) => app.listen({ port: PORT }, r));
 
-  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
+  console.log(
+    `🚀 Server ready at http://localhost:${process.env.PORT}${server.graphqlPath}`
+  );
 }
 
 startServer();
