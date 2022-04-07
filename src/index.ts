@@ -5,6 +5,7 @@ import client from "./client";
 import express from "express";
 import { graphqlUploadExpress } from "graphql-upload";
 import { getLoggedInUser } from "./user/user.utils";
+import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
 
 const PORT = process.env.PORT;
 
@@ -16,6 +17,7 @@ async function startServer() {
       loggedInUser: await getLoggedInUser(req.headers.token),
       client,
     }),
+    plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
   });
   await server.start();
 
