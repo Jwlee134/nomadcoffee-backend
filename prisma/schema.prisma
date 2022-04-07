@@ -27,10 +27,12 @@ model User {
 }
 
 model CoffeeShopPhoto {
-  id     Int        @id @default(autoincrement())
-  url    String
-  shop   CoffeeShop @relation(fields: [shopId], references: [id], onDelete: Cascade)
-  shopId Int
+  id        Int        @id @default(autoincrement())
+  url       String
+  shop      CoffeeShop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  shopId    Int
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
 
 model CoffeeShop {
@@ -42,11 +44,15 @@ model CoffeeShop {
   userId     Int
   photos     CoffeeShopPhoto[]
   categories Category[]
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
 }
 
 model Category {
-  id    Int          @id @default(autoincrement())
-  name  String       @unique
-  slug  String?
-  shops CoffeeShop[]
+  id        Int          @id @default(autoincrement())
+  name      String       @unique
+  slug      String?
+  shops     CoffeeShop[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
 }
