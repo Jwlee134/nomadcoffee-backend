@@ -1,4 +1,5 @@
 import { Resolvers } from "../../types";
+import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 const resolvers: Resolvers = {
@@ -23,10 +24,18 @@ const resolvers: Resolvers = {
         return { ok: false, error: "This username is already taken." };
       }
       const hashedpw = await bcrypt.hash(password, 10);
-      await client.user.create({
-        data: { email, password: hashedpw, name, username },
+      const user = await client.user.create({
+        data: {
+          email,
+          password: hashedpw,
+          name,
+          username,
+          avatarUrl:
+            "https://nomadcoffee-jw.s3.ap-northeast-2.amazonaws.com/avatars/1646290008674-Jwlee134-avatar.jpeg",
+        },
       });
-      return { ok: true };
+      const token = jwt.sign(user.id + "", process.env.SECRET_KEY!);
+      return { ok: true, token };
     },
   },
 };
