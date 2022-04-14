@@ -1,4 +1,4 @@
-import { uploadMultiplePhotosToS3 } from "../../shared/shared.utils";
+import { uploadPhotosToS3 } from "../../shared/shared.utils";
 import { Resolvers } from "../../types";
 import { protectedResolver } from "../../user/user.utils";
 import { processCategories } from "../coffeeShop.utils";
@@ -11,7 +11,7 @@ const resolvers: Resolvers = {
         { name, latitude, longitude, photos, categories },
         { client, loggedInUser }
       ) => {
-        const urls = await uploadMultiplePhotosToS3(photos, "coffeeShops");
+        const urls = await uploadPhotosToS3(photos, "coffeeShops");
         await client.coffeeShop.create({
           data: {
             name,

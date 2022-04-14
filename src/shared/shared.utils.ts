@@ -23,10 +23,7 @@ export const uploadPhotoToS3 = async (file: any, folder?: string) => {
   return Location;
 };
 
-export const uploadMultiplePhotosToS3 = async (
-  files: any[],
-  folder?: string
-) => {
+export const uploadPhotosToS3 = async (files: any[], folder?: string) => {
   if (!files.length) return [];
   const urls: string[] = await Promise.all(
     files?.map(async (data: any) => {
@@ -37,9 +34,14 @@ export const uploadMultiplePhotosToS3 = async (
   return urls;
 };
 
-export const deletePhotoFromS3 = (photo: CoffeeShopPhoto, folder?: string) => {
-  const Key = `${folder}/${photo.url.split("/").slice(-1).join("")}`;
-  new AWS.S3().deleteObject({ Bucket, Key }, (err, data) => {
-    console.log(err, data);
+export const deletePhotosFromS3 = (
+  photos: CoffeeShopPhoto[],
+  folder?: string
+) => {
+  photos.forEach((photo) => {
+    const Key = `${folder}/${photo.url.split("/").slice(-1).join("")}`;
+    new AWS.S3().deleteObject({ Bucket, Key }, (err, data) => {
+      console.log(err, data);
+    });
   });
 };

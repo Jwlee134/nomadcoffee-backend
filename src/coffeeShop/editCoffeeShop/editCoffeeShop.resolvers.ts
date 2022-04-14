@@ -1,5 +1,7 @@
-import { CoffeeShopPhoto } from "@prisma/client";
-import { deletePhotoFromS3, uploadPhotoToS3 } from "../../shared/shared.utils";
+import {
+  deletePhotosFromS3,
+  uploadPhotosToS3,
+} from "../../shared/shared.utils";
 import { Resolvers } from "../../types";
 import { processCategories } from "../coffeeShop.utils";
 
@@ -7,29 +9,48 @@ const resolvers: Resolvers = {
   Mutation: {
     editCoffeeShop: async (
       _,
-      { id, name, latitude, longitude, newPhoto, photoIdToDelete, categories },
+      {
+        id,
+        name,
+        latitude,
+        longitude,
+        newPhotos,
+        photoIdsToDelete,
+        categories,
+        deleteShop,
+      },
       { client, loggedInUser }
     ) => {
+      if (deleteShop) {
+        const photos = await client.coffeeShopPhoto.findMany({
+          where: { shopId: id },
+        });
+        deletePhotosFromS3(photos, "coffeeShops");
+        await client.coffeeShop.delete({ where: { id } });
+        return { ok: true };
+      }
+
       const coffeeShop = await client.coffeeShop.findUnique({
         where: { id },
         include: { photos: true, categories: true },
       });
+
       if (coffeeShop?.userId !== loggedInUser?.id) {
         return { ok: false, error: "You don't have permission." };
       }
-      let idToDelete: number | null = null;
-      if (photoIdToDelete) {
-        const photo = (await client.coffeeShopPhoto.findUnique({
-          where: { id: photoIdToDelete },
-        })) as CoffeeShopPhoto;
-        idToDelete = photo.id;
-        deletePhotoFromS3(photo, "coffeeShops");
+
+      if (photoIdsToDelete) {
+        const photos = await client.coffeeShopPhoto.findMany({
+          where: { id: { in: photoIdsToDelete } },
+        });
+        deletePhotosFromS3(photos, "coffeeShops");
       }
-      let createUrl: string | null = null;
-      if (newPhoto) {
-        const url = await uploadPhotoToS3(newPhoto, "coffeeShops");
-        createUrl = url;
+
+      let urls: string[] = [];
+      if (newPhotos) {
+        urls = await uploadPhotosToS3(newPhotos, "coffeeShops");
       }
+
       await client.coffeeShop.update({
         where: { id },
         data: {
@@ -37,8 +58,10 @@ const resolvers: Resolvers = {
           latitude,
           longitude,
           photos: {
-            ...(idToDelete && { delete: { id: idToDelete } }),
-            ...(createUrl && { create: { url: createUrl } }),
+            ...(photoIdsToDelete && {
+              delete: photoIdsToDelete.map((id: number) => ({ id })),
+            }),
+            ...(urls && { create: urls.map((url: string) => ({ url })) }),
           },
           ...(categories && {
             categories: {

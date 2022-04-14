@@ -7,9 +7,10 @@ export default gql`
       name: String
       latitude: String
       longitude: String
-      newPhoto: Upload
-      photoIdToDelete: Int
+      newPhotos: [Upload]
+      photoIdsToDelete: [Int]
       categories: [String]
+      deleteShop: Boolean
     ): MutationResponse
   }
 `;
