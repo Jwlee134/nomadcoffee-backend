@@ -7,7 +7,7 @@ const resolvers: Resolvers = {
         take: 10,
         ...(lastId && { skip: 1, cursor: { id: lastId } }),
         include: {
-          photos: { take: 1 },
+          photos: true,
           user: { select: { username: true, avatarUrl: true } },
           categories: { select: { id: true, name: true } },
         },
